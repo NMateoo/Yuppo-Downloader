@@ -1,0 +1,11 @@
+{
+    "timeout": 15,
+    "max_workers": 10,
+    "bg_color": "#FFFFFF",
+    "font_size": 8,
+    "text_color": "#000000",
+    "button_color": "#DDDDDD",
+    "button_text_color": "#000000",
+    "button_width": 15,
+    "button_height": 2
+}
