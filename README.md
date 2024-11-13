@@ -15,7 +15,7 @@ Yupoo Downloader es una herramienta que permite automatizar la descarga de imág
 ## Instalación
 1. Clona este repositorio:
    ```sh
-   git clone https://github.com/tuusuario/yupoo-downloader.git
+   git clone https://github.com/NMateoo/Yuppo-Downloader
    ```
 2. Navega al directorio del proyecto:
    ```sh
