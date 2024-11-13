@@ -176,8 +176,8 @@ class YupooDownloader:
         Returns:
             str: Título limpio y ajustado.
         """
-        title = re.sub(r'^\d{1,2}\s*', '', title)
-        title = re.sub(r'\bS-XXL\b', '', title)
-        title = title.replace("/", "-")
+        #title = re.sub(r'^\d{1,2}\s*', '', title)
+        #title = re.sub(r'\bS-XXL\b', '', title)
+        #title = title.replace("/", "-")
         title = re.sub(r'[<>:"/\\|?*]', '-', title)
         return title.strip()

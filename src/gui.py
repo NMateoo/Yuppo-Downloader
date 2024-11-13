@@ -97,7 +97,7 @@ class YupooGUI:
         self.stop_button = tk.Button(control_frame, text="Detener Descarga", command=self.stop_download, state=tk.DISABLED, font=(None, font_size), bg=button_color, fg=button_text_color, width=button_width, height=button_height)
         self.stop_button.grid(row=0, column=1, padx=5, pady=5)
 
-        self.resume_button = tk.Button(control_frame, text="Pausar/Reanudar Descarga", command=self.toggle_pause, state=tk.DISABLED, font=(None, font_size), bg=button_color, fg=button_text_color, width=button_width, height=button_height)
+        self.resume_button = tk.Button(control_frame, text="Pausar Descarga", command=self.toggle_pause, state=tk.DISABLED, font=(None, font_size), bg=button_color, fg=button_text_color, width=button_width, height=button_height)
         self.resume_button.grid(row=0, column=2, padx=5, pady=5)
 
         # Panel de Progreso
@@ -120,7 +120,7 @@ class YupooGUI:
         products_frame = tk.LabelFrame(self.root, text="Productos Descargados", padx=10, pady=10, bg=self.config.get("bg_color", "#FFFFFF"), fg=text_color)
         products_frame.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky='nsew')
 
-        self.products_listbox = tk.Listbox(products_frame, width=60, height=10, font=(None, font_size))
+        self.products_listbox = tk.Listbox(products_frame, width=100, height=10, font=(None, font_size))
         self.products_listbox.grid(row=0, column=0, padx=5, pady=5)
         self.products_listbox.bind('<<ListboxSelect>>', self.display_album_photos)
 
@@ -128,7 +128,7 @@ class YupooGUI:
         log_frame = tk.LabelFrame(self.root, text="Registro de Actividades", padx=10, pady=10, bg=self.config.get("bg_color", "#FFFFFF"), fg=text_color)
         log_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky='nsew')
 
-        self.log_area = tk.Text(log_frame, width=60, height=10, state='normal', font=(None, font_size))
+        self.log_area = tk.Text(log_frame, width=100, height=10, state='normal', font=(None, font_size))
         self.log_area.grid(row=0, column=0, columnspan=3, padx=5, pady=5)
 
         # Botón de Cerrar
@@ -385,12 +385,10 @@ class YupooGUI:
         if selection:
             album_index = selection[0]
             album_name = self.downloaded_albums[album_index]
-            album_name_normalized = album_name.replace('/', '-')  # Normalizar nombre de carpeta
+            album_name_normalized = re.sub(r'[\\/:*?"<>|]', '-', album_name)  # Normalizar nombre de carpeta eliminando caracteres inválidos
             album_folder = os.path.join(os.path.normpath(self.folder_entry.get()), "page1", album_name_normalized)
-            album_name = re.sub(r' S.*$', '', album_folder)
-            print('Alfun folder'  + album_folder)
-            print('Album name normalized ' + album_name_normalized)
-            print('Albumname ' + album_name)
+
+            print(album_name + ' ', album_name_normalized + ' ', album_folder + ' ')
 
             if os.path.exists(album_folder):
                 photos = [f for f in os.listdir(album_folder) if f.endswith(('.jpg', '.jpeg', '.png'))]
@@ -399,6 +397,8 @@ class YupooGUI:
                     photo_window = tk.Toplevel(self.root)
                     photo_window.title(f"Fotos de {album_name}")
 
+                    row = 0
+                    col = 0
                     for photo in photos:
                         photo_path = os.path.join(album_folder, photo)
                         img = Image.open(photo_path)
@@ -407,8 +407,13 @@ class YupooGUI:
 
                         img_label = tk.Label(photo_window, image=img)
                         img_label.image = img  # Mantener una referencia para evitar el recolector de basura
-                        img_label.pack(padx=5, pady=5)
+                        img_label.grid(row=row, column=col, padx=5, pady=5)
                         img_label.bind("<Button-1>", lambda e, photo_path=photo_path: self.show_large_photo(photo_path))
+
+                        col += 1
+                        if col >= 4:
+                            col = 0
+                            row += 1
                 else:
                     messagebox.showinfo("Sin Fotos", f"No se encontraron fotos en el álbum: {album_name}")
             else:
