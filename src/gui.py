@@ -10,8 +10,6 @@ from PIL import Image, ImageTk
 from downloader import YupooDownloader
 import sys
 import re
-import Pmw
-
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
