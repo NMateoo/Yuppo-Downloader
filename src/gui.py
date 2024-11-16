@@ -10,10 +10,38 @@ from PIL import Image, ImageTk
 from downloader import YupooDownloader
 import sys
 import re
+import Pmw
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 CONFIG_FILE = "config.json"
+
+class ToolTip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tooltip_window = None
+        widget.bind("<Enter>", self.show_tooltip)
+        widget.bind("<Leave>", self.hide_tooltip)
+
+    def show_tooltip(self, event):
+        if self.tooltip_window or not self.text:
+            return
+        x, y, _, _ = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += self.widget.winfo_rooty() + 25
+        self.tooltip_window = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = tk.Label(tw, text=self.text, justify='left', background="#ffffe0", relief='solid', borderwidth=1, font=(None, 10))
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self, event):
+        tw = self.tooltip_window
+        self.tooltip_window = None
+        if tw:
+            tw.destroy()
 
 class YupooGUI:
     def __init__(self, root):
@@ -86,6 +114,15 @@ class YupooGUI:
 
         self.select_folder_button = tk.Button(config_frame, text="Seleccionar Carpeta", command=self.select_folder, font=(None, font_size), bg=button_color, fg=button_text_color, width=button_width, height=button_height)
         self.select_folder_button.grid(row=2, column=0, padx=5, pady=5)
+
+        self.modify_url_var = tk.BooleanVar()
+        self.modify_url_checkbox = tk.Checkbutton(config_frame, text="Modificar URL (?pag= a &pag=)", variable=self.modify_url_var, bg=self.config.get("bg_color", "#FFFFFF"), fg=text_color, font=(None, font_size))
+        self.modify_url_checkbox.grid(row=2, column=1, padx=5, pady=5, sticky='w')
+
+        ToolTip(self.select_folder_button, "")
+
+        ToolTip(self.modify_url_checkbox, "Si contiene el simbolo '?' puede descargar mas fotos de la cuenta por problemas dentro del Yuppo.\n Marca esta opción si solo quieres que descargue las fotos que aparecen en el albúm.")
+
 
         # Panel de Control
         control_frame = tk.LabelFrame(self.root, text="Controles", padx=10, pady=10, bg=self.config.get("bg_color", "#FFFFFF"), fg=text_color)
@@ -273,8 +310,9 @@ class YupooGUI:
         url = self.url_entry.get()
         download_folder = self.folder_entry.get()
 
-        if '?pag=' in url:
-            url = url.replace('?pag=', '&pag=')
+        if self.modify_url_var.get():
+            if '?pag=' in url:
+                url = url.replace('?pag=', '&pag=')
 
         if not url or ('pag=' not in url):
             messagebox.showerror("Error", "Por favor, ingrese una URL válida que contenga el parámetro 'pag=n'.")
